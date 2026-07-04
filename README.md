@@ -49,6 +49,7 @@ Executes:
 1. Ingest step library
 2. Ingest feature projects
 3. Generate feature files
+4. Validate the generated project
 
 Reads the latest instructions from each agent file so it always stays in sync.
 
@@ -105,6 +106,23 @@ Generates files under `{spec-title}_test/`:
         └── responsePayload/  # Expected response JSON files
 ```
 
+### @validator
+
+Validates a generated Maven project against step definitions, schemas, conventions, and Maven standards.
+
+```
+@validator validate pet-store-api_test
+```
+
+Checks performed:
+1. **Step def matching** — every Gherkin step matches a known `sg:` pattern from `wiki/entities/`
+2. **Payload schema** — request/response payloads conform to the OpenAPI spec
+3. **Convention compliance** — matches patterns from ingested feature projects
+4. **Gherkin syntax** — valid Feature/Scenario/Given-When-Then structure
+5. **Maven project** — standard layout, well-formed POM, package/directory match, dependency resolution, compilation
+
+Creates `wiki/queries/{target}-validation-report.md` with a detailed results table.
+
 ### @wiki-linter
 
 Health-checks the wiki for contradictions, orphans, stale pages, and coverage gaps.
@@ -129,6 +147,7 @@ General-purpose agent for writing and modifying code across the project.
 
 1. Place an OpenAPI spec at the `frontend_spec` path (default: `frontend/openapi.yaml`)
 2. `@feature-writer` — generates feature files, payloads, and step definitions that follow your project's conventions
+3. `@validator validate {spec-title}_test` — validate the generated output
 
 ### Maintenance
 
@@ -147,7 +166,9 @@ General-purpose agent for writing and modifying code across the project.
 │   ├── code-writer.md           # General code writing
 │   ├── feature-writer.md        # Cucumber feature generation
 │   ├── wiki-ingestor.md         # Project ingestion
-│   └── wiki-linter.md           # Wiki health checks
+│   ├── wiki-linter.md           # Wiki health checks
+│   ├── validator.md             # Generated project validation
+│   └── pipeline.md              # Full workflow orchestration
 ├── frontend/
 │   └── openapi.yaml             # Sample Pet Store API spec
 ├── raw/                         # Immutable source documents

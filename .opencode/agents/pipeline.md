@@ -25,6 +25,9 @@ Read `.opencode/agents/wiki-ingestor.md`. Find the `### ingest feature-projects`
 ### Step 3 — Generate feature files
 Read `.opencode/agents/feature-writer.md`. Execute every instruction in that file verbatim using your own tools.
 
+### Step 4 — Validate generated project
+Read `.opencode/agents/validator.md`. Execute every instruction in that file verbatim, targeting the output directory produced in Step 3 (the `{spec-title}_test` directory).
+
 ### Final report
 After all steps complete, append a summary to `wiki/log.md`:
 ```
@@ -32,4 +35,5 @@ After all steps complete, append a summary to `wiki/log.md`:
 - Completed ingest step-library
 - Completed ingest feature-projects
 - Completed feature-writer
+- Completed validate {spec-title}_test
 ```
