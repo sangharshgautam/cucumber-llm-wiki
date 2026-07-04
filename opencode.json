@@ -1,0 +1,8 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "cucumber-llm-wiki": {
+    "frontend_spec": "frontend/openapi.yaml",
+    "step_library": "path/to/step-def-library",
+    "feature_projects": ["path/to/project-a", "path/to/project-b"]
+  }
+}
