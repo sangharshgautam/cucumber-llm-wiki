@@ -22,11 +22,17 @@ Read `.opencode/agents/wiki-ingestor.md`. Find the `### ingest step-library` sec
 ### Step 2 — Ingest feature projects
 Read `.opencode/agents/wiki-ingestor.md`. Find the `### ingest feature-projects` section. Execute every instruction in that section verbatim using your own tools.
 
-### Step 3 — Generate feature files
+### Step 3 — Resolve target directory
+Read `opencode.json` → `cucumber-llm-wiki.frontend_spec` → read the spec at that path → read `cucumber-llm-wiki.api_name` (default: `info.title`) → navigate the spec using that dotted path → sanitize (lowercase, replace spaces with hyphens, remove special chars) → append `_test` → this is `{target-dir}`.
+
+### Step 4 — Validate scaffold
+Read `.opencode/agents/validator.md`. Find the `## Workflow: check-scaffold` section. Execute every instruction there verbatim, with `{target-dir}` from Step 3. If any check fails, abort the pipeline — do not proceed.
+
+### Step 5 — Generate feature files
 Read `.opencode/agents/feature-writer.md`. Execute every instruction in that file verbatim using your own tools.
 
-### Step 4 — Validate generated project
-Read `.opencode/agents/validator.md`. Execute every instruction in that file verbatim, targeting the output directory produced in Step 3 (the `{spec-title}_test` directory).
+### Step 6 — Validate generated project
+Read `.opencode/agents/validator.md`. Find the `## Workflow: validate` section. Execute every instruction there verbatim, with `{target-dir}` from Step 3.
 
 ### Final report
 After all steps complete, append a summary to `wiki/log.md`:
@@ -34,6 +40,7 @@ After all steps complete, append a summary to `wiki/log.md`:
 ## [YYYY-MM-DD] pipeline | full run
 - Completed ingest step-library
 - Completed ingest feature-projects
+- Completed check-scaffold {target-dir}
 - Completed feature-writer
-- Completed validate {spec-title}_test
+- Completed validate {target-dir}
 ```

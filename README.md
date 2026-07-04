@@ -135,6 +135,32 @@ Health-checks the wiki for contradictions, orphans, stale pages, and coverage ga
 
 General-purpose agent for writing and modifying code across the project.
 
+## Testing
+
+Run agent structure validation locally:
+
+```powershell
+./tests/agent-structure-test.ps1
+```
+
+Or via GitHub Actions on every push/PR (see `.github/workflows/test-agents.yml`).
+
+### What the structure test checks
+
+| Check | Description |
+|-------|-------------|
+| YAML frontmatter | Every agent file has valid `---` delimited frontmatter |
+| Description | Every agent has a description field |
+| Mode | Must be `subagent` |
+| Temperature | Must be a numeric value |
+| Permission block | Must declare `permission:` with tool keys |
+| Permission consistency | Read-only agents (linter, validator) should not have `edit: allow` |
+| Cross-references | Agents that reference other agents by name are documented |
+
+### Manual integration testing
+
+See `tests/integration-test-plan.md` for full end-to-end test procedures covering each agent.
+
 ## Workflow
 
 ### First time setup

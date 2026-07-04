@@ -15,7 +15,40 @@ You are a validator. You check generated Cucumber Maven projects for correctness
 
 Read `opencode.json` from the project root. Get the `frontend_spec` path from `cucumber-llm-wiki.frontend_spec` key (default: `frontend/openapi.yaml`).
 
-## Workflow
+## Workflow: check-scaffold
+
+Invoke with `@validator check-scaffold {target-dir}`.
+
+Validates that the scaffold project exists and is wired to an ingested step library. Does not check features or payloads — use `@validator validate` for that.
+
+### Checks
+
+1. Read `wiki/entities/` for pages tagged `stepdef` — at least one must exist
+   - If none found: `FAIL` — "No step library ingested. Run @wiki-ingestor first."
+   - Read the first such page, extract the package from `**Package:** \`{package}\``
+2. Verify required files under `{target-dir}`:
+   - `pom.xml` exists
+   - `src/test/java/runners/CucumberRunner.java` exists
+   - `src/test/resources/junit-platform.properties` exists
+3. Verify `junit-platform.properties` contains `cucumber.glue={package}` matching the step library
+4. Read `opencode.json` → `cucumber-llm-wiki.api_name` (default: `info.title`). Read the spec at `cucumber-llm-wiki.frontend_spec`. Split the dotted path and navigate the spec step by step:
+   - If any segment doesn't exist: `FAIL` — "api_name path '{path}' not found in spec"
+   - If the resolved value is empty: `FAIL` — "api_name path '{path}' resolved to empty value"
+
+### Output
+
+Print results to stdout. Append to `wiki/log.md`:
+
+```
+## [YYYY-MM-DD] check-scaffold | {target-dir}
+- {n}/{m} checks passed
+```
+
+If any check fails, the scaffold is not ready. Run `@validator check-scaffold {target-dir}` again after fixing issues.
+
+---
+
+## Workflow: validate
 
 Invoke with `@validator validate {target-dir}` where `{target-dir}` is the generated Maven project root (e.g., `pet-store-api_test`).
 
