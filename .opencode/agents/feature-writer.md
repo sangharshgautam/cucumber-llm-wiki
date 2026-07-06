@@ -14,7 +14,7 @@ You are a Cucumber feature generator. Given an OpenAPI spec and a pre-existing s
 
 ## Config
 
-Read `opencode.json` from the project root. Get the `frontend_spec` path from the `cucumber-llm-wiki.frontend_spec` key. Default: `frontend/openapi.yaml`.
+Read `wiki-config.json` from the project root. Get the `frontend_spec` path. Default: `frontend/openapi.yaml`.
 
 ## Workflow
 
@@ -22,9 +22,9 @@ Read `opencode.json` from the project root. Get the `frontend_spec` path from th
    - Step definition entity pages under `## Entities` (tagged `stepdef`)
    - Feature project source pages under `## Sources`
    - Read those pages to learn: available `@Given`/`@When`/`@Then` patterns, payload conventions, mock conventions, tag hierarchy, background patterns
-1. Read `opencode.json` → resolve `frontend_spec` path
+1. Read `wiki-config.json` → resolve `frontend_spec` path
 2. Read the OpenAPI YAML/JSON spec at that path
-3. Read `api_name` from `opencode.json` under `cucumber-llm-wiki` (default: `info.title`). Navigate the spec using that dotted path to get the value. Sanitize it (lowercase, replace spaces with hyphens, remove special chars), append `_test` — this is the output root directory
+3. Read `api_name` from `wiki-config.json` (default: `info.title`). Navigate the spec using that dotted path to get the value. Sanitize it (lowercase, replace spaces with hyphens, remove special chars), append `_test` — this is the output root directory
 4. For each path + operation in the spec, generate Cucumber files under `{output_root}/src/test/`
 
 ## Output structure

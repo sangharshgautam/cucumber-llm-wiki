@@ -6,7 +6,7 @@ An LLM-maintained knowledge base for Cucumber JVM testing ecosystems. This proje
 
 Three conceptual layers, each with a distinct ownership boundary:
 
-1. **Schema/Config layer** — `opencode.json` and `AGENTS.md` define project paths, conventions, and workflows. The LLM reads these to understand the rules but does not modify them. Owned by the user.
+1. **Schema/Config layer** — `wiki-config.json` and `AGENTS.md` define project paths, conventions, and workflows. `opencode.json` configures opencode agents. The LLM reads these to understand the rules but does not modify them. Owned by the user.
 
 2. **Source layer** — `raw/` holds immutable source documents (articles, API specs, notes). The LLM reads only; never modifies. Owned by the user.
 
@@ -17,16 +17,14 @@ See [Project structure](#project-structure) below for the full file tree.
 ## Quick start
 
 1. Clone this repo.
-2. Edit `opencode.json` with paths to your projects:
+2. Edit `wiki-config.json` with paths to your projects:
 
 ```json
 {
-  "cucumber-llm-wiki": {
-    "frontend_spec": "frontend/openapi.yaml",
-    "api_name": "info.title",
-    "step_library": "../my-step-def-library",
-    "feature_projects": ["../project-payments", "../project-orders"]
-  }
+  "frontend_spec": "frontend/openapi.yaml",
+  "api_name": "info.title",
+  "step_library": "../my-step-def-library",
+  "feature_projects": ["../project-payments", "../project-orders"]
 }
 ```
 
@@ -50,7 +48,7 @@ The pipeline orchestrates the full workflow end-to-end:
 ```mermaid
 flowchart LR
     subgraph Inputs
-        A[opencode.json] --> D
+        A[wiki-config.json] --> D
         B[OpenAPI spec] --> D
         C[wiki/entities/] --> F
     end
@@ -138,7 +136,7 @@ Generates `.feature` files and payload JSONs into a pre-existing scaffold Maven 
 
 **Pre-requisite:** The scaffold project must already exist with `pom.xml`, `CucumberRunner.java`, and `junit-platform.properties` pre-configured. Run `@validator check-scaffold {target-dir}` to verify it's ready.
 
-The output directory is determined by the `api_name` config key in `opencode.json` (default: `info.title` from the spec), sanitized with `_test` appended.
+The output directory is determined by the `api_name` config key in `wiki-config.json` (default: `info.title` from the spec), sanitized with `_test` appended.
 
 Before generating, reads the wiki to discover:
 - Available `@Given`/`@When`/`@Then` step definitions from ingested libraries
@@ -224,7 +222,8 @@ See `tests/integration-test-plan.md` for full end-to-end test procedures coverin
 ```
 .
 ├── AGENTS.md                    # Wiki schema and operations
-├── opencode.json                # Agent configuration
+├── opencode.json                # OpenCode agent configuration
+├── wiki-config.json             # Project paths and settings
 ├── README.md
 ├── .opencode/agents/
 │   ├── code-writer.md           # General code writing

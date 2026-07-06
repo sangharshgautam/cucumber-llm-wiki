@@ -1,9 +1,2 @@
 {
-  "$schema": "https://opencode.ai/config.json",
-  "cucumber-llm-wiki": {
-    "frontend_spec": "frontend/openapi.yaml",
-    "api_name": "info.title",
-    "step_library": "C:/Users/sangh/IdeaProjects/sangharshgautam/openapi-bdd",
-    "feature_projects": ["C:/Users/sangh/IdeaProjects/sangharshgautam/coffee-ordering-api"]
-  }
 }

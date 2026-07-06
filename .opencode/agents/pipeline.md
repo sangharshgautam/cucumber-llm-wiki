@@ -23,7 +23,7 @@ Read `.opencode/agents/wiki-ingestor.md`. Find the `### ingest step-library` sec
 Read `.opencode/agents/wiki-ingestor.md`. Find the `### ingest feature-projects` section. Execute every instruction in that section verbatim using your own tools.
 
 ### Step 3 — Resolve target directory
-Read `opencode.json` → `cucumber-llm-wiki.frontend_spec` → read the spec at that path → read `cucumber-llm-wiki.api_name` (default: `info.title`) → navigate the spec using that dotted path → sanitize (lowercase, replace spaces with hyphens, remove special chars) → append `_test` → this is `{target-dir}`.
+Read `wiki-config.json` → `frontend_spec` → read the spec at that path → read `api_name` (default: `info.title`) → navigate the spec using that dotted path → sanitize (lowercase, replace spaces with hyphens, remove special chars) → append `_test` → this is `{target-dir}`.
 
 ### Step 4 — Validate scaffold
 Read `.opencode/agents/validator.md`. Find the `## Workflow: check-scaffold` section. Execute every instruction there verbatim, with `{target-dir}` from Step 3. If any check fails, abort the pipeline — do not proceed.

@@ -13,7 +13,7 @@ You are a validator. You check generated Cucumber Maven projects for correctness
 
 ## Config
 
-Read `opencode.json` from the project root. Get the `frontend_spec` path from `cucumber-llm-wiki.frontend_spec` key (default: `frontend/openapi.yaml`).
+Read `wiki-config.json` from the project root. Get the `frontend_spec` path (default: `frontend/openapi.yaml`).
 
 ## Workflow: check-scaffold
 
@@ -31,7 +31,7 @@ Validates that the scaffold project exists and is wired to an ingested step libr
    - `src/test/java/runners/CucumberRunner.java` exists
    - `src/test/resources/junit-platform.properties` exists
 3. Verify `junit-platform.properties` contains `cucumber.glue={package}` matching the step library
-4. Read `opencode.json` → `cucumber-llm-wiki.api_name` (default: `info.title`). Read the spec at `cucumber-llm-wiki.frontend_spec`. Split the dotted path and navigate the spec step by step:
+4. Read `wiki-config.json` → `api_name` (default: `info.title`). Read the spec at `frontend_spec`. Split the dotted path and navigate the spec step by step:
    - If any segment doesn't exist: `FAIL` — "api_name path '{path}' not found in spec"
    - If the resolved value is empty: `FAIL` — "api_name path '{path}' resolved to empty value"
 

@@ -14,7 +14,7 @@ You are a wiki ingestor. You read external Maven projects and document their con
 
 ## Config
 
-Read `opencode.json` from the project root. Get paths from `cucumber-llm-wiki.step_library` and `cucumber-llm-wiki.feature_projects`.
+Read `wiki-config.json` from the project root. Get `step_library` and `feature_projects` paths.
 
 ## Workflows
 
@@ -24,7 +24,7 @@ Invoke with `@wiki-ingestor ingest step-library` or `@wiki-ingestor ingest featu
 
 ### ingest step-library
 
-1. Read `step_library` path from `opencode.json`
+1. Read `step_library` path from `wiki-config.json`
 2. Scan recursively for `*.java` files under `src/test/java/` and `src/main/java/`
 3. For each Java file, parse Cucumber annotations (`@Given`, `@When`, `@Then`, `@And`, `@But`):
    - Extract the annotation regex pattern (e.g., `@Given("the pet exists with id {int}")`)
@@ -98,7 +98,7 @@ Invoke with `@wiki-ingestor ingest step-library` or `@wiki-ingestor ingest featu
 
 ### ingest feature-projects
 
-1. Read `feature_projects` list from `opencode.json`
+1. Read `feature_projects` list from `wiki-config.json`
 2. For each project path:
    
    a. **Read the OpenAPI spec**

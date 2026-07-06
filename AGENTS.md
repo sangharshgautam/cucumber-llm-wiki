@@ -11,6 +11,7 @@ This project implements Karpathy's LLM Wiki pattern — an LLM-maintained knowle
 ## Directory structure
 
 ```
+wiki-config.json            # project paths and settings (read by agents)
 raw/
   article-title.md        # source documents, never modified
   another-source.pdf
@@ -62,7 +63,7 @@ Use `[[wikilinks]]` for cross-references between pages. Use `[citations](source-
 3. If the answer has lasting value, file it as a new page in `wiki/queries/`
 
 ### Ingest Step Library
-1. Read `step_library` path from `opencode.json`
+1. Read `step_library` path from `wiki-config.json`
 2. Scan the Maven project for Java step definition classes
 3. For each class, extract `@Given`/`@When`/`@Then` annotated methods (regex pattern, parameters, javadoc)
 4. Create an entity page per class in `wiki/entities/{ClassName}.md` listing its steps
@@ -70,7 +71,7 @@ Use `[[wikilinks]]` for cross-references between pages. Use `[citations](source-
 6. Append to `wiki/log.md`
 
 ### Ingest Feature Projects
-1. Read `feature_projects` list from `opencode.json`
+1. Read `feature_projects` list from `wiki-config.json`
 2. For each project:
    a. Read `public/openapi.yaml` — document the spec
    b. Scan `.feature` files — parse scenarios, tags, steps
