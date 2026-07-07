@@ -101,8 +101,12 @@ Background:
 ---
 
 ### Feature files
-- One `.feature` file per logical resource group (paths grouped by first path segment)
-- Feature name = resource group name
+- Conform to canonical journey feature naming conventions:
+  - `happyPath.feature` for happy path and backend scenarios
+  - `negativePath.feature` for 400 validation negatives
+  - `waf.feature` for 403/405 header WAF negatives
+- Override resource group naming for journey projects
+- Feature name = canonical journey feature file name
 - **Use step definitions discovered from the wiki.** Only write Gherkin steps that match existing `@Given`/`@When`/`@Then` patterns from ingested step libraries.
 - For each operation generate scenarios:
   - **Happy path** — 200/201 response with valid request
@@ -142,6 +146,42 @@ Background:
   - `API requires bearer token authentication`
   - `headers are set:`
 
+### Scenario Tag Prefix Enforcement
+
+- Enforce that scenario-level tags include one of these prefixes according to feature file:
+  - `happyPath.feature`: `@H\d{3}`
+  - `negativePath.feature`: `@N\d{3}`
+  - `waf.feature`: `@WAF\d{3}`
+  - `businessScenarios.feature`: `@B\d{3}`
+  - `serverErrorScenarios.feature`: `@E\d{3}`
+
+- Ensure no descriptive tags like `@negative-400-emptyBody` or `@waf-403-header-invalid` are present.
+
+- Validate tags are only placed immediately above each `Scenario:` or `Scenario Outline:`.
+
+- If violations occur, emit warnings or errors for correction.
+
+### Feature File Categorization Rules
+
+- Ensure scenarios only included in matching feature files by category.
+- Happy scenarios only in `happyPath.feature`.
+- Negative 400s only in `negativePath.feature`.
+- WAF 403/405 only in `waf.feature`.
+- Business 422 only in `businessScenarios.feature`.
+- Server Errors (500+) only in `serverErrorScenarios.feature`.
+
+- Enforce one unique numeric scenario tag per scenario or per example row.
+
+- Integrity checks for missing or duplicate scenario tags.
+
+### Documentation
+
+- Update maintainer notes to explain tag format and file separation conventions.
+- Include sample tagging usage for new features.
+
+- Encourage future contributors to follow these conventions strictly.
+
+
 ### Backend Mock Handling (vpd01-style, driven by backend_spec)
 - Read `backend_spec` path from `wiki-config.json`.
 - Resolve path and operationId for each backend operation.
@@ -155,7 +195,9 @@ Background:
 
 ### Backend Mock JSON Generation Details
 - For each response status code, generate a JSON mock response file.
-- File path: `{output_root}/src/test/resources/mocks/{operationId}_{statusCode}[ _{errorCode}].json`
+- File path: `{output_root}/src/test/resources/mocks/{scenarioTag}_{statusCode}[ _{errorCode}].json`
+
+- Where `{scenarioTag}` is the scenario numeric tag (e.g., H001, N004, WAF007), matching the tagging convention across the features.
 - Content for 201/400/422/500 should be based on schema examples if present, otherwise reasonable defaults.
 - Content for 401/403/404/502 should be an empty JSON object `{}`.
 - For 422 responses, if there are enumerated error codes (e.g., `001` to `999`), generate one mock per code with
