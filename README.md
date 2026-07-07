@@ -54,7 +54,7 @@ flowchart LR
     end
 
     D[Step 3<br/>Resolve target dir<br/>from api_name] --> E[Step 4<br/>@validator check-scaffold]
-    E -->|pass| F[Step 5<br/>@feature-writer]
+    E -->|pass| F[Step 5<br/>@generate-pipeline]
     E -->|fail| X[Abort]
 
     F --> G[Step 6<br/>@validator validate]
@@ -68,9 +68,9 @@ flowchart LR
 Executes:
 1. **Ingest step library** — scans `step_library` project, creates `wiki/entities/`
 2. **Ingest feature projects** — scans `feature_projects`, creates `wiki/sources/`
-3. **Resolve target directory** — reads `api_name` from config, navigates the spec, sanitizes + `_test`
+3. **Resolve target directory** — reads `api_name` from config, navigates the spec, sanitizes + `-service-test`
 4. **Validate scaffold** — `@validator check-scaffold` verifies project is wired to the step library
-5. **Generate feature files** — `@feature-writer` produces `.feature` files + payloads
+ 5. **Generate feature files** — `@generate-pipeline` acts as orchestrator including `@feature-writer` to produce `.feature` files + payloads
 6. **Validate generated project** — `@validator validate` runs all 5 checks
 
 Pipeline aborts at step 4 if the scaffold isn't ready.
@@ -82,7 +82,7 @@ Alternatively, run each step individually:
 1. Place an OpenAPI spec at the `frontend_spec` path (default: `frontend/openapi.yaml`)
 2. Ensure the scaffold project exists at `{target-dir}/` (resolved from `api_name` config key)
 3. `@validator check-scaffold {target-dir}` — verify the scaffold is ready
-4. `@feature-writer` — generates feature files and payloads using existing step definitions from the wiki
+4. `@generate-pipeline` — orchestrates optional wiki refresh and then generates features and payloads using existing step definitions from the wiki
 5. `@validator validate {target-dir}` — validate the generated output
 
 ## Maintenance
@@ -128,15 +128,20 @@ For each project in `feature_projects`, scans:
 
 ### @feature-writer
 
+**Note:** Direct feature generation is possible with `@feature-writer`, but `@generate-pipeline` offers a more complete workflow including optional wiki refresh and validation.
+
 Generates `.feature` files and payload JSONs into a pre-existing scaffold Maven project.
 
 ```
 @feature-writer
 ```
 
+*Note:* Direct invocation of `@feature-writer` is possible for generation only, but `@generate-pipeline` orchestrates refresh, generation, and validation for a full workflow.
+
+
 **Pre-requisite:** The scaffold project must already exist with `pom.xml`, `CucumberRunner.java`, and `junit-platform.properties` pre-configured. Run `@validator check-scaffold {target-dir}` to verify it's ready.
 
-The output directory is determined by the `api_name` config key in `wiki-config.json` (default: `info.title` from the spec), sanitized with `_test` appended.
+The output directory is determined by the `api_name` config key in `wiki-config.json` (default: `info.title` from the spec), sanitized as lowercase, replacing spaces with hyphens, removing special chars, and appending `-service-test` prefixed by `journey-`.
 
 Before generating, reads the wiki to discover:
 - Available `@Given`/`@When`/`@Then` step definitions from ingested libraries
@@ -178,6 +183,79 @@ Checks performed:
 5. **Maven project** — standard layout, well-formed POM, package/directory match, dependency resolution, compilation (SKIP if Maven not installed)
 
 Creates `wiki/queries/{target}-validation-report.md` with a detailed results table.
+
+### @generate-pipeline (new)
+
+A mini-orchestrator that runs feature generation with optional wiki refresh. Invoked with `@generate-pipeline run` plus optional parameters.
+
+```
+@generate-pipeline run
+refresh_wiki_before_generate: true|false  # default false
+```
+
+## Workflow
+
+1. If `refresh_wiki_before_generate` is true:
+  - Run `@wiki-ingestor ingest step-library`
+  - Run `@wiki-ingestor ingest feature-projects`
+2. Resolve `target-dir` from `wiki-config.json` and frontend spec as `feature-writer` does
+3. Run `@validator check-scaffold {target-dir}` and abort if it fails
+4. Run `@feature-writer`
+5. Run `@validator validate {target-dir}`
+6. Append a summary to `wiki/log.md`
+
+---
+
+### Diagram
+
+```mermaid
+flowchart TD
+    subgraph User
+    A[Run generate-pipeline with refresh_wiki_before_generate]
+    end
+
+    subgraph Wiki_Refresh
+    B1[@wiki-ingestor ingest step-library]
+    B2[@wiki-ingestor ingest feature-projects]
+    end
+
+    subgraph Validation
+    C1[@validator check-scaffold]
+    C2[@feature-writer]
+    C3[@validator validate]
+    end
+
+    subgraph Log
+    D[Append summary to wiki/log.md]
+    end
+
+    A -->|refresh true| B1 --> B2 --> C1
+    A -->|refresh false| C1
+    C1 -->|pass| C2 --> C3 --> D
+    C1 -->|fail| E[Abort with error]
+```
+
+---
+
+Example usage:
+
+```bash
+opencode run --agent generate-pipeline \
+'run
+refresh_wiki_before_generate: true
+'
+```
+
+Or for fast inner loop (no refresh):
+
+```bash
+opencode run --agent generate-pipeline \
+'run
+refresh_wiki_before_generate: false
+'
+```
+
+This allows prompt-driven flexible orchestration with on-demand refresh.
 
 ### @wiki-linter
 

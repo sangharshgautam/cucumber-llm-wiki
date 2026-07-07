@@ -51,13 +51,13 @@ This document describes how to manually test each agent end-to-end using the sam
 
 | Artifact | Expected | Verified |
 |----------|----------|----------|
-| `pet-store-api_test/pom.xml` | Created with openapi-bdd dependency | |
-| `pet-store-api_test/src/test/java/runners/CucumberRunner.java` | Created | |
-| `pet-store-api_test/src/test/java/steps/PetSteps.java` | Created | |
-| `pet-store-api_test/src/test/resources/features/pets.feature` | 11 scenarios | |
-| `pet-store-api_test/src/test/resources/requestPayload/` | 3 JSON files | |
-| `pet-store-api_test/src/test/resources/responsePayload/` | 1 JSON file | |
-| `pet-store-api_test/src/test/resources/junit-platform.properties` | Created | |
+| `journey-pet-store-api-service-test/pom.xml` | Created with openapi-bdd dependency | |
+| `journey-pet-store-api-service-test/src/test/java/runners/CucumberRunner.java` | Created | |
+| `journey-pet-store-api-service-test/src/test/java/steps/PetSteps.java` | Created | |
+| `journey-pet-store-api-service-test/src/test/resources/features/pets.feature` | 11 scenarios | |
+| `journey-pet-store-api-service-test/src/test/resources/requestPayload/` | 3 JSON files | |
+| `journey-pet-store-api-service-test/src/test/resources/responsePayload/` | 1 JSON file | |
+| `journey-pet-store-api-service-test/src/test/resources/junit-platform.properties` | Created | |
 
 **Pass if:** All files created, feature file uses `sg:` step patterns, payloads use descriptive names.
 
@@ -65,7 +65,7 @@ This document describes how to manually test each agent end-to-end using the sam
 
 ## Test 4: Validate Generated Project
 
-**Command:** `@validator validate pet-store-api_test`
+**Command:** `@validator validate journey-pet-store-api-service-test`
 
 **Expected results:**
 
@@ -76,7 +76,7 @@ This document describes how to manually test each agent end-to-end using the sam
 | Convention compliance | Matches coffee-ordering-api patterns | |
 | Gherkin syntax | Valid | |
 | Maven project | Layout, POM, packages OK | |
-| `wiki/queries/pet-store-api_test-validation-report.md` | Created | |
+| `wiki/queries/journey-pet-store-api-service-test-validation-report.md` | Created | |
 
 **Pass if:** All checks pass or are acceptable.
 
@@ -120,6 +120,6 @@ After changes to any agent file, re-run the full pipeline and verify:
 To reset the wiki to a clean state between runs:
 
 ```powershell
-Remove-Item -Recurse -Force wiki/entities/*.md, wiki/sources/*.md, wiki/queries/*.md, pet-store-api_test -ErrorAction SilentlyContinue
+Remove-Item -Recurse -Force wiki/entities/*.md, wiki/sources/*.md, wiki/queries/*.md, journey-pet-store-api-service-test -ErrorAction SilentlyContinue
 git checkout -- wiki/index.md wiki/log.md
 ```

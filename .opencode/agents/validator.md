@@ -28,9 +28,9 @@ Validates that the scaffold project exists and is wired to an ingested step libr
    - Read the first such page, extract the package from `**Package:** \`{package}\``
 2. Verify required files under `{target-dir}`:
    - `pom.xml` exists
-   - `src/test/java/runners/CucumberRunner.java` exists
+   - `src/test/java/**/CucumberTestRunner.java` exists
    - `src/test/resources/junit-platform.properties` exists
-3. Verify `junit-platform.properties` contains `cucumber.glue={package}` matching the step library
+3. Verify `junit-platform.properties` contains `cucumber.glue={package}` matching the step library or the runner class is annotated with `@ConfigurationParameter(GLUE_PROPERTY_NAME, ...)`
 4. Read `wiki-config.json` → `api_name` (default: `info.title`). Read the spec at `frontend_spec`. Split the dotted path and navigate the spec step by step:
    - If any segment doesn't exist: `FAIL` — "api_name path '{path}' not found in spec"
    - If the resolved value is empty: `FAIL` — "api_name path '{path}' resolved to empty value"
