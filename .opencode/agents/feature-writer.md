@@ -124,6 +124,56 @@ Background:
 - If the wiki shows mocks are used (WireMock, etc.), generate mock stub files in the appropriate directory
 - Match the mock framework and directory convention from ingested projects
 
+### Allowed Steps Only
+- Generate only steps present in the ingested step definition entity pages or known core step library
+- Allowed canonical steps:
+  - `Given the following headers:`
+  - `Given the payload "{string}"`
+  - `When a "{string}" request is sent to the journey with the context path "{string}"`
+  - `Then a {int} response should be returned from the journey`
+  - `Then the response body should match the JSON present in "{string}"`
+  - `Given the "{string}" header is "{string}"`
+  - `Given the "{string}" header is removed/missing`
+  - `Given the backend mock scenario "{string}"`
+  - `Then the backend should receive a request to the path "{string}"`
+  - `Then the backend should not receive a request`
+- Disallowed steps:
+  - `I send a POST request ...`
+  - `API requires bearer token authentication`
+  - `headers are set:`
+
+### Backend Mock Handling (vpd01-style, driven by backend_spec)
+- Read `backend_spec` path from `wiki-config.json`.
+- Resolve path and operationId for each backend operation.
+- Generate mock stub files as vpd01 style JSON in `{output_root}/src/test/resources/mocks/`.
+- Generate scenarioKeys in format `<operationId>_<statusCode>` and `<operationId>_422_<code>` for each code in backend enum.
+- Mock response rules:
+  - 201/400/422/500: generate response body from backend schema examples where available
+  - 401/403/404/502: empty response body
+- Scenarios that expect backend call must activate mock with `Given the backend mock scenario "<scenarioKey>"`.
+- For 400 validation scenarios, add `Then the backend should not receive a request` to assert blocked backend.
+
+### Backend Mock JSON Generation Details
+- For each response status code, generate a JSON mock response file.
+- File path: `{output_root}/src/test/resources/mocks/{operationId}_{statusCode}[ _{errorCode}].json`
+- Content for 201/400/422/500 should be based on schema examples if present, otherwise reasonable defaults.
+- Content for 401/403/404/502 should be an empty JSON object `{}`.
+- For 422 responses, if there are enumerated error codes (e.g., `001` to `999`), generate one mock per code with
+  filenames: `{operationId}_422_{code}.json`.
+
+### vpd06 Passthrough
+- Default assumption: passthrough, no backend transformation.
+- Add backend call assertion:
+  - `Then the backend should receive a request to the path "/RESTAdapter/generic/excise-approval-status"`
+
+### Header handling split reminder
+- 403 and 405 status codes → `@waf` feature
+- 400 status code → `@negative` feature
+- Include the baseline headers in each.
+- `@waf` features: no backend mock activation.
+- `@negative` features: assert backend not called.
+- Happy/backend scenarios in main feature including backend mock activation.
+
 
 
 ## Logging
