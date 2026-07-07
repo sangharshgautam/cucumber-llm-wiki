@@ -24,7 +24,7 @@ Read `wiki-config.json` from the project root. Get the `frontend_spec` path. Def
    - Read those pages to learn: available `@Given`/`@When`/`@Then` patterns, payload conventions, mock conventions, tag hierarchy, background patterns
 1. Read `wiki-config.json` → resolve `frontend_spec` path
 2. Read the OpenAPI YAML/JSON spec at that path
-3. Read `api_name` from `wiki-config.json` (default: `info.title`). Navigate the spec using that dotted path to get the value. Sanitize it (lowercase, replace spaces with hyphens, remove special chars), append `_test` — this is the output root directory
+3. Read `api_name` from `wiki-config.json` (default: `info.title`). Navigate the spec using that dotted path to get the value. Sanitize it (lowercase, replace spaces with hyphens, remove special chars), prepend `journey-`, append `-service-test` — this is the output root directory
 4. For each path + operation in the spec, generate Cucumber files under `{output_root}/src/test/`
 
 ## Output structure
@@ -41,6 +41,64 @@ Read `wiki-config.json` from the project root. Get the `frontend_spec` path. Def
 ```
 
 ## Generation rules
+
+### Header Handling (Negative / WAF)
+
+- Header-validation scenarios must use supported steps only:
+  - `Given the following headers:`
+  - `Given the "{string}" header is "{string}"`
+  - `Given the "{string}" header is removed/missing`
+- Do NOT generate `Given the "{string}" header is missing` (no step exists).
+- Use only substitution tokens `$uuid`, `$auth`, `$date` in header DataTables; do NOT use `{uuid}`, `{token}`, `{date}`.
+
+- Split header-negatives by expected status code:
+  - 403 cases and invalid method scenarios go to a dedicated WAF feature file:
+    - `{output_root}/src/test/resources/features/waf.feature`
+    - Tags: `@waf @<service> @test`
+  - 400 cases go to negative feature file:
+    - `{output_root}/src/test/resources/features/negativePath.feature`
+    - Tags: `@negative @<service> @test`
+
+- Status routing:
+  | Header Name           | Status Code | Description                       |
+  |-----------------------|-------------|---------------------------------|
+  | authorization         | 403         | Missing or invalid authorization |
+  | accept                | 403         | Missing or invalid Accept header |
+  | content-type          | 403         | Missing or invalid Content-Type  |
+  | date                  | 403         | Missing or invalid Date header   |
+  | x-correlation-id      | 403         | Missing or invalid Correlation ID|
+  | x-forwarded-host      | 403         | Missing or invalid forwarded host|
+
+- Background header baseline for both waf and negative features:
+
+```gherkin
+Background:
+  Given the following headers:
+    | date                        | $date            |
+    | x-correlation-id            | $uuid            |
+    | x-forwarded-host            | ETDS             |
+    | content-type                | application/json |
+    | accept                      | application/json |
+    | authorization               | $auth            |
+    | x-eis-sender-classification | external         |
+```
+
+- WAF feature scenarios:
+  - Scenario Outline: Missing mandatory header returns 403
+    - Use `Given the "<header>" header is removed/missing`
+  - Scenario Outline: Invalid header value returns 403
+    - Use `Given the "<header>" header is "<badValue>"`
+  - Scenario Outline: Invalid method returns 405
+    - Test with HTTP methods `PUT/DELETE/GET/PATCH`
+
+- Negative feature scenarios:
+  - Scenario Outline: Invalid payload returns 400
+    - Use valid baseline headers
+    - Vary payload values
+
+- Replace any use of placeholders `{uuid}`, `{token}`, `{date}` with correct `$uuid`, `$auth`, `$date`.
+
+---
 
 ### Feature files
 - One `.feature` file per logical resource group (paths grouped by first path segment)
